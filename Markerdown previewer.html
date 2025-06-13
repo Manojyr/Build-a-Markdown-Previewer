@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Markdown Previewer</title>
+
+    <!-- React + Babel + Marked -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f6f6f6;
+            margin: 0;
+            padding: 20px 10px;
+        }
+
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 6px 10px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .panes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 300px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            height: 400px;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            resize: none;
+            font-size: 1em;
+            font-family: monospace;
+            outline: none;
+            background: inherit;
+            color: inherit;
+        }
+
+        .preview * {
+            text-align: left !important;
+        }
+
+        .preview strong {
+            font-weight: bold;
+        }
+
+        .preview em {
+            font-style: italic;
+        }
+
+        .preview code {
+            background: #eee;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .buttons {
+            text-align: center;
+        }
+
+        .buttons button {
+            background: #333;
+            color: white;
+            padding: 10px 22px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            margin: 0 10px;
+            cursor: pointer;
+        }
+
+        .buttons button:hover {
+            background: #555;
+        }
+
+        .dark {
+            background-color: #1e1e1e;
+            color: white;
+        }
+
+        .dark .card {
+            background: #2c2c2c;
+            color: white;
+        }
+
+        .dark textarea {
+            background: #2c2c2c;
+            color: white;
+        }
+
+        .dark .theme-toggle {
+            background: #fff;
+            color: #222;
+        }
+
+        @media (max-width: 768px) {
+            .panes {
+                flex-direction: column;
+            }
+
+            .card {
+                height: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        marked.setOptions({ gfm: true, breaks: true });
+
+function App() {
+  const [text, setText] = React.useState('');
+  const [dark, setDark] = React.useState(false);
+
+  const download = (type) => {
+    const content = type === 'markdown' ? text : marked.parse(text);
+    const blob = new Blob([content], { type: type === 'markdown' ? 'text/md' : 'text/html' });
+    const link = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(blob),
+      download: type === 'markdown' ? 'file.md' : 'file.html'
+    });
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
+
+  return (
+    <div className={`container ${dark ? 'dark' : ''}`}>
+      <h1>Markdown Previewer</h1>
+      <button className="theme-toggle" onClick={() => setDark(!dark)}>Toggle Theme</button>
+      <div className="panes">
+        <div className="card">
+          <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Start typing..." />
+        </div>
+        <div className="card preview" dangerouslySetInnerHTML={{ __html: marked.parse(text) }} />
+      </div>
+      <div className="buttons">
+        <button onClick={() => download('markdown')}>Export MD</button>
+        <button onClick={() => download('html')}>Export HTML</button>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+
+  </script>
+</body>
+
+</html>
